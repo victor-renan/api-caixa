@@ -3,10 +3,13 @@
 namespace App\Http\Controllers;
 
 use App\Models\User;
+use DB;
+use Exception;
 use Illuminate\Auth\Events\PasswordReset;
 use Illuminate\Http\Request;
 use Illuminate\Validation\Rules\Password;
 use Illuminate\Support\Facades\Password as PasswordFacade;
+use Log;
 
 class AuthController
 {
@@ -128,6 +131,46 @@ class AuthController
         return response()->json([
             'message' => 'Logout realizado com sucesso',
         ], 200);
+    }
+
+    public function register(Request $request)
+    {
+        $validation = \Validator::make($request->all(), [
+            'name' => ['required'],
+            'email' => ['email', 'required'],
+            'password' => ['required', 'confirmed', Password::min(8)->letters()->numbers()],
+        ], $this->validationMessages());
+
+        if ($validation->fails()) {
+            return response()->json([
+                'error' => 'Erro de validação',
+                'errors' => $validation->errors()
+            ]);
+        }
+
+        try {
+            DB::transaction(function () use ($request) {
+                User::create($request->all());
+            });
+
+            $status = PasswordFacade::sendResetLink([
+                'email' => $request->email
+            ]);
+
+            return $status === PasswordFacade::ResetLinkSent
+                ? response()->json([
+                    'message' => 'Um email foi enviado para sua conta',
+                ], 200)
+                : response()->json([
+                    'error' => 'Falha ao enviar email',
+                ], 500);
+        } catch (Exception $e) {
+            Log::error($e->getMessage());
+
+            return response()->json([
+                'error' => 'Falha ao registrar usuário, tente novamente mais tarde'
+            ], 500);
+        }
     }
 
     public function user(Request $request)
