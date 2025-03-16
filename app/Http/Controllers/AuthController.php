@@ -2,34 +2,31 @@
 
 namespace App\Http\Controllers;
 
-use App\Helpers\Res;
 use App\Models\User;
+use Illuminate\Auth\Events\PasswordReset;
 use Illuminate\Http\Request;
-use DB;
-use Exception;
-use Hash;
-use Log;
-use Validator;
+use Illuminate\Validation\Rules\Password;
+use Illuminate\Support\Facades\Password as PasswordFacade;
 
 class AuthController
 {
     public function login(Request $request)
     {
-        $validation = Validator::make($request->all(), [
+        $validation = \Validator::make($request->all(), [
             'email' => ['required', 'email'],
             'password' => ['required'],
-        ]);
+        ], $this->validationMessages());
 
-        if ($validation->fails()) {           
+        if ($validation->fails()) {
             return response()->json([
                 'error' => 'Erro de validação',
                 'errors' => $validation->errors()
             ], 400);
         }
 
-        $user = User::firstWhere('email', $request->email);
+        $user = User::firstWhere(['email' => $request->email]);
 
-        if (!$user || !Hash::check($request->password, $user->password)) {
+        if (!$user || !\Hash::check($request->password, $user->password)) {
             return response()->json([
                 'error' => 'Credenciais não encontradas',
             ], 401);
@@ -48,92 +45,106 @@ class AuthController
 
     public function forgot(Request $request)
     {
-        $validation = Validator::make($request->all(), [
+        $validation = \Validator::make($request->all(), [
             'email' => ['required', 'email'],
-        ], [
-            'email.required' => 'Digite um email!',
-            'email.email' => 'Digite um email válido!',
-        ]);
+        ], $this->validationMessages());
 
         if ($validation->fails()) {
-            return Msg::validationErrors($validation->errors());
+            return response()->json([
+                'error' => 'Erro de validação',
+                'errors' => $validation->errors()
+            ], 400);
         }
 
-        $user = User::firstWhere('email', $request->email);
+        $user = User::firstWhere(['email' => $request->email]);
+
         if (!$user) {
-            return Msg::message(401, 'Falha ao enviar solicitação!');
+            return response()->json([
+                'error' => 'Credenciais não encontradas',
+            ], 401);
         }
 
-        $existingToken = PasswordResetToken::where('email', $user->email);
-
-        $token = new PasswordResetToken([
-            'email' => $user->email,
-            'token' => PasswordResetToken::generate(),
-            'expiration' => now()->addHours(6)
+        $status = PasswordFacade::sendResetLink([
+            'email' => $user->email
         ]);
 
-        try {
-            DB::transaction(function () use ($existingToken, $token) {
-                $existingToken->delete();
-                $token->save();
-            });
-        } catch (Exception $e) {
-            Log::info($e->getMessage());
-            return Msg::serverError($e->getMessage());
-        }
-
-        try {
-            Mail::to($user)->send(
-                new Forgot($user->name, $token->token)
-            );
-        } catch (Exception $e) {
-            Log::info($e->getMessage());
-            return Msg::serverError($e->getMessage());
-        }
-
-        return Msg::message(200, 'Solicitação enviada!');
+        return $status === PasswordFacade::ResetLinkSent
+            ? response()->json([
+                'message' => 'Um email foi enviado para sua conta',
+            ], 200)
+            : response()->json([
+                'error' => 'Falha ao enviar email',
+            ], 500);
     }
 
     public function reset(Request $request)
     {
-        $validation = Validator::make($request->all(), [
-            'password' => ['min:8', 'required', 'confirmed'],
-        ], [
-            'password.required' => 'Digite uma senha!',
-            'password.confirmed' => 'Senhas diferentes!',
-            'password.min' => 'A senha precisa ter ao menos 8 caracteres!',
-        ]);
+        $validation = \Validator::make($request->all(), [
+            'email' => ['email', 'required'],
+            'token' => ['required'],
+            'password' => ['required', 'confirmed', Password::min(8)->letters()->numbers()],
+        ], $this->validationMessages());
 
         if ($validation->fails()) {
-            return Msg::validationErrors($validation->errors());
+            return response()->json([
+                'error' => 'Erro de validação',
+                'errors' => $validation->errors()
+            ], 400);
         }
 
-        $token = PasswordResetToken::firstWhere('token', $request->token);
+        $status = PasswordFacade::reset(
+            $request->only(
+                'email',
+                'password',
+                'password_confirmation',
+                'token'
+            ),
+            function (User $user, string $password) {
+                $user->forceFill([
+                    'password' => \Hash::make($password),
+                ])->save();
 
-        if (!$token || $token->expiration < now()) {
-            return Msg::message(401, 'Solicite outro token de senha!');
-        }
+                event(new PasswordReset($user));
+            }
+        );
 
-        $user = User::firstWhere('email', $token->email);
-
-        $user->password = $request->password;
-
-        try {
-            DB::transaction(function () use ($user, $token) {
-                $user->save();
-                $token->delete();
-            });
-        } catch (Exception $e) {
-            Log::info($e->getMessage());
-            return Msg::serverError($e->getMessage());
-        }
-
-        return Msg::message(200, 'Senha alterada com sucesso!');
+        return match ($status) {
+            PasswordFacade::PasswordReset => response()->json([
+                'message' => 'Senha atualizada com sucesso',
+            ], 200),
+            PasswordFacade::InvalidToken => response()->json([
+                'error' => 'Solicitação expirada',
+            ], 401),
+            default => response()->json([
+                'error' => 'Falha ao atualizar senha',
+            ], 500)
+        };
     }
 
     public function logout(Request $request)
     {
         $request->user()->currentAccessToken()->delete();
-        return Msg::message(200, 'Logout feito com sucesso!');
+
+        return response()->json([
+            'message' => 'Logout realizado com sucesso',
+        ], 200);
+    }
+
+    public function user(Request $request)
+    {
+        return $request->user();
+    }
+
+    private function validationMessages(): array
+    {
+        return [
+            'email.required' => 'Preencha seu email',
+            'email.email' => 'O email está inválido',
+            'password.required' => 'Preencha a senha',
+            'password.min' => 'A senha precisa ter ao menos 8 caracteres',
+            'password.letters' => 'A senha precisa ter ao menos uma letra',
+            'password.numbers' => 'A senha precisa ter ao menos um número',
+            'password.confirmed' => 'Senha de confirmação diferente',
+        ];
     }
 }
