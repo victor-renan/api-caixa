@@ -149,8 +149,8 @@ class AuthController
         }
 
         try {
-            DB::transaction(function () use ($request) {
-                User::create($request->all());
+            DB::transaction(function () use ($validation) {
+                User::create($validation->validated());
             });
 
             $status = PasswordFacade::sendResetLink([

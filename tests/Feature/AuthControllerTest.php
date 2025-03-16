@@ -124,6 +124,23 @@ class AuthControllerTest extends TestCase
         $response->assertStatus(401);
     }
 
+    public function test_register(): void
+    {
+        $response = $this->post('/api/auth/register', [
+            'name' => 'Teste',
+            'email' => 'a@a.a',
+            'password' => 'Test@123',
+            'password_confirmation' => 'Test@123',
+        ]);
+
+        Notification::assertSentTo(
+            [User::where('email', 'a@a.a')->first()],
+            ResetPasswordNotification::class
+        );
+
+        $response->assertStatus(200);
+    }
+
 
     private function getForgotToken(): string
     {
