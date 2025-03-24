@@ -8,5 +8,5 @@ Route::controller(AuthController::class)->prefix('/auth')->group(function () {
     Route::post('/forgot', 'forgot');
     Route::post('/reset', 'reset');
     Route::post('/register', 'register');
-    Route::get('/user', 'user')->middleware('auth:sanctum');
+    Route::get('/validate', 'validate')->middleware('auth:sanctum');
 });

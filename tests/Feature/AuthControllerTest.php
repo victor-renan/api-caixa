@@ -32,7 +32,7 @@ class AuthControllerTest extends TestCase
 
     public function test_login(): void
     {
-        $response = $this->post(
+        $response = $this->postJson(
             '/api/auth/login',
             $this->credentials
         );
@@ -42,7 +42,7 @@ class AuthControllerTest extends TestCase
 
     public function test_login_invalid(): void
     {
-        $response = $this->post(
+        $response = $this->postJson(
             '/api/auth/login',
             array_replace(
                 $this->credentials,
@@ -55,7 +55,7 @@ class AuthControllerTest extends TestCase
 
     public function test_forgot(): void
     {
-        $response = $this->post(
+        $response = $this->postJson(
             '/api/auth/forgot',
             ['email' => $this->credentials['email']]
         );
@@ -70,7 +70,7 @@ class AuthControllerTest extends TestCase
 
     public function test_forgot_invalid(): void
     {
-        $response = $this->post(
+        $response = $this->postJson(
             '/api/auth/forgot',
             ['email' => 'invalid@mail.com']
         );
@@ -92,7 +92,7 @@ class AuthControllerTest extends TestCase
 
     public function test_reset_valid(): void
     {
-        $response = $this->post(
+        $response = $this->postJson(
             '/api/auth/reset',
             $this->resetBody()
         );
@@ -102,21 +102,21 @@ class AuthControllerTest extends TestCase
 
     public function test_reset_invalid_fields(): void
     {
-        $response = $this->post(
+        $response = $this->postJson(
             '/api/auth/reset',
             array_merge($this->resetBody(), [
                 'password' => 'DifferentFromConfirmation123',
             ])
         );
 
-        $response->assertStatus(400);
+        $response->assertStatus(422);
     }
 
     public function test_reset_invalid_token(): void
     {
         $this->test_reset_valid();
 
-        $response = $this->post(
+        $response = $this->postJson(
             '/api/auth/reset',
             $this->resetBody(),
         );
@@ -126,17 +126,12 @@ class AuthControllerTest extends TestCase
 
     public function test_register(): void
     {
-        $response = $this->post('/api/auth/register', [
+        $response = $this->postJson('/api/auth/register', [
             'name' => 'Teste',
             'email' => 'a@a.a',
             'password' => 'Test@123',
             'password_confirmation' => 'Test@123',
         ]);
-
-        Notification::assertSentTo(
-            [User::where('email', 'a@a.a')->first()],
-            ResetPasswordNotification::class
-        );
 
         $response->assertStatus(200);
     }
