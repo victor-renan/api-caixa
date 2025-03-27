@@ -16,6 +16,6 @@ Route::controller(ClientController::class)->prefix('/clients')->middleware('auth
     Route::get('/', 'list');
     Route::put('/', 'create');
     Route::get('/{client}', 'details');
-    Route::patch('/{client}', 'reset');
+    Route::patch('/{client}', 'update');
     Route::delete('/{client}', 'delete');
 });

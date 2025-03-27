@@ -10,7 +10,7 @@ class ClientCreateRequest extends FormRequest
     {
         return [
             'name' => 'required',
-            'phone' => 'required,unique:clients',
+            'phone' => 'required|unique:clients',
         ];
     }
 
