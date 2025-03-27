@@ -18,8 +18,6 @@ class ClientUpdateRequest extends FormRequest
     public function messages(): array
     {
         return [
-            'name.required' => 'O nome é obrigatório',
-            'phone.required' => 'O telefone é obrigatório',
             'phone.unique' => 'Já existe um cliente com este telefone',
         ];
     }

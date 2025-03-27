@@ -3,7 +3,6 @@
 namespace App\Http\Controllers;
 
 use App\Http\Requests\ClientCreateRequest;
-use App\Http\Requests\ClientRequest;
 use App\Http\Requests\ClientUpdateRequest;
 use App\Models\Client;
 use App\Repo\ClientRepo;
@@ -13,8 +12,6 @@ use Exception;
 
 class ClientController extends Controller
 {
-    public int $paginationCount = 15;
-
     public function __construct(
         public ClientRepo $clientRepo
     ) {}
@@ -31,16 +28,8 @@ class ClientController extends Controller
             $builder->where('phone', 'like', "%$phone%");
         }
 
-        $paginatorCount = $this->paginationCount;
-
-        if ($perPage = $request->query('per_page')) {
-            if (is_numeric($perPage) && intval($perPage) >= 5 && intval($perPage) <= 100) {
-                $paginatorCount = intval($perPage);
-            }
-        }
-
         return response()->json(
-            $builder->paginate($paginatorCount)
+            $this->preparePagination($request, $builder)
         );
     }
 
