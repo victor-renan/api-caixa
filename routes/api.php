@@ -2,6 +2,7 @@
 
 use App\Http\Controllers\AuthController;
 use App\Http\Controllers\ClientController;
+use App\Http\Controllers\ProductController;
 use Illuminate\Support\Facades\Route;
 
 Route::controller(AuthController::class)->prefix('/auth')->group(function () {
@@ -18,4 +19,12 @@ Route::controller(ClientController::class)->prefix('/clients')->middleware('auth
     Route::get('/{client}', 'details');
     Route::patch('/{client}', 'update');
     Route::delete('/{client}', 'delete');
+});
+
+Route::controller(ProductController::class)->prefix('/products')->middleware('auth:sanctum')->group(function () {
+  Route::get('/', 'list');
+  Route::put('/', 'create');
+  Route::get('/{product}', 'details');
+  Route::patch('/{product}', 'update');
+  Route::delete('/{product}', 'delete');
 });

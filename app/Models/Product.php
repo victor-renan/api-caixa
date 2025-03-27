@@ -15,8 +15,13 @@ class Product extends Model
         'name',
         'description',
         'price',
+        'code',
         'quantity',
         'image_url',
+    ];
+
+    protected $casts = [
+      'quantity' => 'integer'
     ];
 
     public function transactions(): MorphMany

@@ -2,11 +2,9 @@
 
 namespace App\Http\Controllers;
 
-use App\Http\Requests\ClientCreateRequest;
-use App\Http\Requests\ClientUpdateRequest;
 use App\Http\Requests\ProductCreateRequest;
 use App\Http\Requests\ProductUpdateRequest;
-use App\Models\Client;
+use App\Models\Product;
 use App\Repo\ProductRepo;
 use Illuminate\Http\JsonResponse;
 use Illuminate\Http\Request;
@@ -23,7 +21,7 @@ class ProductController extends Controller
 
   public function list(Request $request): JsonResponse
   {
-    $builder = Client::query();
+    $builder = Product::query();
 
     if ($name = $request->query('name')) {
       $builder->where('name', 'like', "%$name%");
@@ -68,7 +66,7 @@ class ProductController extends Controller
   {
     try {
       $model = $this->productRepo->update(
-        $request->client->id,
+        $request->product->id,
         $request->safe()->all()
       );
       return response()->json([
@@ -86,7 +84,7 @@ class ProductController extends Controller
   {
     try {
       $this->productRepo->delete(
-        $request->client->id,
+        $request->product->id,
       );
       return response()->json([
         'message' => 'Produto deletado com sucesso',
