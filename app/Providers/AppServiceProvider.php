@@ -4,6 +4,7 @@ namespace App\Providers;
 
 use App\Models\Client;
 use App\Models\Product;
+use App\Models\Service;
 use App\Models\User;
 use Illuminate\Auth\Notifications\ResetPassword;
 use Illuminate\Support\ServiceProvider;
@@ -41,6 +42,14 @@ class AppServiceProvider extends ServiceProvider
       $model = Product::find($value);
       if (!$model) {
         throw new NotFoundHttpException('Produto não encontrado');
+      }
+      return $model;
+    });
+
+    Route::bind('service', function (string $value) {
+      $model = Service::find($value);
+      if (!$model) {
+        throw new NotFoundHttpException('Serviço não encontrado');
       }
       return $model;
     });

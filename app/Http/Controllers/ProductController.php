@@ -12,8 +12,6 @@ use Exception;
 
 class ProductController extends Controller
 {
-  public int $paginationCount = 15;
-
   public function __construct(
     public ProductRepo $productRepo
   ) {
