@@ -33,7 +33,7 @@ class AppServiceProvider extends ServiceProvider
     Route::bind('client', function (string $value) {
       $model = Client::find($value);
       if (!$model) {
-        throw new NotFoundHttpException('Cliente não encontrada');
+        throw new NotFoundHttpException('Cliente não encontrado');
       }
       return $model;
     });

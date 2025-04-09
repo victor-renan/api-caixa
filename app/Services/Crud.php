@@ -1,16 +1,26 @@
 <?php
 
-namespace App\Repo;
+namespace App\Services;
 
 use DB;
 use Exception;
 use Illuminate\Database\Eloquent\Model;
+use Log;
 
-class GenericRepo
+class Crud
 {
   public function __construct(
     public string $modelClass
   ) {
+  }
+
+  public function getById(int $id): Model
+  {
+    $model = $this->modelClass::firstWhere('id', '=', $id);
+    if (!$model) {
+      throw new Exception('Item solicitado não existe');
+    }
+    return $model;
   }
 
   public function create(array $attributes): Model
@@ -22,7 +32,8 @@ class GenericRepo
       });
       return $model;
     } catch (Exception $e) {
-      throw $e;
+      Log::error($e);
+      throw new Exception('Falha ao criar o item');
     }
   }
 
@@ -35,20 +46,21 @@ class GenericRepo
       });
       return $model;
     } catch (Exception $e) {
-      throw $e;
+      Log::error($e);
+      throw new Exception('Falha ao atualizar o item');
     }
   }
 
-  public function delete(int $id): bool
+  public function delete(int $id): void
   {
     $model = $this->modelClass::find($id);
     try {
       DB::transaction(function () use ($model) {
         $model->delete();
       });
-      return true;
     } catch (Exception $e) {
-      throw $e;
+      Log::error($e);
+      throw new Exception('Falha ao deletar o item');
     }
   }
 }

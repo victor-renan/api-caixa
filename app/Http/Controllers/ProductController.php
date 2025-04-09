@@ -5,7 +5,7 @@ namespace App\Http\Controllers;
 use App\Http\Requests\ProductCreateRequest;
 use App\Http\Requests\ProductUpdateRequest;
 use App\Models\Product;
-use App\Repo\ProductRepo;
+use App\Services\ProductService;
 use Illuminate\Http\JsonResponse;
 use Illuminate\Http\Request;
 use Exception;
@@ -13,7 +13,7 @@ use Exception;
 class ProductController extends Controller
 {
   public function __construct(
-    public ProductRepo $productRepo
+    public ProductService $productRepo
   ) {
   }
 
@@ -53,7 +53,7 @@ class ProductController extends Controller
         'message' => 'Produto adicionado com sucesso',
         'data' => $model->toArray(),
       ]);
-    } catch (Exception $e) {
+    } catch (Exception) {
       return response()->json([
         'message' => 'Falha ao adicionar produto',
       ], 500);
@@ -71,7 +71,7 @@ class ProductController extends Controller
         'message' => 'Produto atualizado com sucesso',
         'data' => $model->toArray(),
       ]);
-    } catch (Exception $e) {
+    } catch (Exception) {
       return response()->json([
         'message' => 'Falha ao atualizar produto',
       ], 500);
@@ -87,7 +87,7 @@ class ProductController extends Controller
       return response()->json([
         'message' => 'Produto deletado com sucesso',
       ]);
-    } catch (Exception $e) {
+    } catch (Exception) {
       return response()->json([
         'message' => 'Falha ao deletar produto',
       ], 500);

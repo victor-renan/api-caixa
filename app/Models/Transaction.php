@@ -12,8 +12,6 @@ class Transaction extends Model
     use HasFactory;
 
     protected $fillable = [
-        'role_id',
-        'role_type',
         'client_id',
         'user_id',
         'amount',
@@ -25,9 +23,4 @@ class Transaction extends Model
         'is_paid' => 'boolean',
         'payment_type' => PaymentTypes::class
     ];
-
-    public function role(): MorphTo
-    {
-        return $this->morphTo();
-    }
 }

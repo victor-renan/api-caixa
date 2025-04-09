@@ -5,7 +5,7 @@ namespace App\Http\Controllers;
 use App\Http\Requests\ClientCreateRequest;
 use App\Http\Requests\ClientUpdateRequest;
 use App\Models\Client;
-use App\Repo\ClientRepo;
+use App\Services\ClientService;
 use Illuminate\Http\JsonResponse;
 use Illuminate\Http\Request;
 use Exception;
@@ -13,7 +13,7 @@ use Exception;
 class ClientController extends Controller
 {
   public function __construct(
-    public ClientRepo $clientRepo
+    public ClientService $clientRepo
   ) {
   }
 

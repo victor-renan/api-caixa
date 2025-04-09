@@ -16,8 +16,8 @@ class Service extends Model
         'price',
     ];
 
-    public function transactions(): MorphMany
+    public function cartItems(): MorphMany
     {
-        return $this->morphMany(Transaction::class, 'role');
+        return $this->morphMany(CartItem::class, 'subject');
     }
 }

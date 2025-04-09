@@ -1,10 +1,10 @@
 <?php
 
-namespace App\Repo;
+namespace App\Services;
 
 use App\Models\Service;
 
-class ServiceRepo extends GenericRepo
+class ServiceService extends Crud
 {
   public function __construct()
   {
