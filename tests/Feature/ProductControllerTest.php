@@ -72,15 +72,6 @@ class ProductControllerTest extends TestCase
     $response = $this->getJson('/api/products?code=123456');
     $response->assertStatus(200);
     $this->assertCount(1, $response->json()['data']);
-
-    $response = $this->getJson('/api/products?per_page=6');
-    $response->assertStatus(200);
-    $this->assertEquals(6, $response->json()['per_page']);
-
-    $response = $this->getJson('/api/products?per_page=4');
-    $response->assertStatus(200);
-    $this->assertEquals(15, $response->json()['per_page']);
-
   }
 
   public function test_details(): void

@@ -17,7 +17,7 @@ return new class extends Migration
             $table->string('code')->unique();
             $table->string('name')->unique();
             $table->text('description');
-            $table->string('price');
+            $table->decimal('price');
             $table->integer('quantity', unsigned: true)->default(0);
             $table->string('image_url')->nullable();
         });

@@ -20,15 +20,11 @@ class TransactionFactory extends Factory
      */
     public function definition(): array
     {
-        $product = Product::latest()->first();
-        
         return [
-            'role_id' => $product->id,
-            'role_type' => Product::class,
-            'amount' => $product->price,
-            'client_id' => Client::latest()->first()->id,
-            'user_id' => User::latest()->first()->id,
-            'payment_type' => array_rand(PaymentTypes::cases(), 1),
+            'amount' => '10.0',
+            'client_id' => Client::factory(),
+            'user_id' => User::factory(),
+            'payment_type' => PaymentTypes::Pix,
         ];
     }
 }

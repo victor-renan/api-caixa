@@ -14,10 +14,9 @@ return new class extends Migration {
         Schema::create('transactions', function (Blueprint $table) {
             $table->id();
             $table->timestamps();
-            $table->foreignId('client_id')->constrained();
+            $table->foreignId('client_id')->nullable();
             $table->foreignId('user_id')->constrained();
-            $table->string('amount')->nullable();
-            $table->boolean('is_paid')->default(false);
+            $table->decimal('amount')->nullable();
             $table->enum('payment_type', [
                 PaymentTypes::Card->value,
                 PaymentTypes::Money->value,

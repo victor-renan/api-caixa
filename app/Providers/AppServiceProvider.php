@@ -29,29 +29,5 @@ class AppServiceProvider extends ServiceProvider
     ResetPassword::createUrlUsing(function (User $user, string $token) {
       return env('VITE_APP_NAME') . "/reset-password?token=$token";
     });
-
-    Route::bind('client', function (string $value) {
-      $model = Client::find($value);
-      if (!$model) {
-        throw new NotFoundHttpException('Cliente não encontrado');
-      }
-      return $model;
-    });
-
-    Route::bind('product', function (string $value) {
-      $model = Product::find($value);
-      if (!$model) {
-        throw new NotFoundHttpException('Produto não encontrado');
-      }
-      return $model;
-    });
-
-    Route::bind('service', function (string $value) {
-      $model = Service::find($value);
-      if (!$model) {
-        throw new NotFoundHttpException('Serviço não encontrado');
-      }
-      return $model;
-    });
   }
 }

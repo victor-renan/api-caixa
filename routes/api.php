@@ -3,7 +3,7 @@
 use App\Http\Controllers\AuthController;
 use App\Http\Controllers\ClientController;
 use App\Http\Controllers\ProductController;
-use App\Http\Controllers\ServiceController;
+use App\Http\Controllers\TransactionController;
 use Illuminate\Support\Facades\Route;
 
 Route::controller(AuthController::class)
@@ -22,9 +22,9 @@ Route::controller(ClientController::class)
   ->group(function () {
     Route::get('/', 'list');
     Route::put('/', 'create');
-    Route::get('/{client}', 'details');
-    Route::patch('/{client}', 'update');
-    Route::delete('/{client}', 'delete');
+    Route::get('/{id}', 'details');
+    Route::patch('/{id}', 'update');
+    Route::delete('/{id}', 'delete');
   });
 
 Route::controller(ProductController::class)
@@ -33,19 +33,20 @@ Route::controller(ProductController::class)
   ->group(function () {
     Route::get('/', 'list');
     Route::put('/', 'create');
-    Route::get('/{product}', 'details');
-    Route::patch('/{product}', 'update');
-    Route::delete('/{product}', 'delete');
+    Route::get('/{id}', 'details');
+    Route::patch('/{id}', 'update');
+    Route::delete('/{id}', 'delete');
   });
 
 
-Route::controller(ServiceController::class)
-  ->prefix('/services')
+  Route::controller(TransactionController::class)
+  ->prefix('/transactions')
   ->middleware('auth:sanctum')
   ->group(function () {
     Route::get('/', 'list');
     Route::put('/', 'create');
-    Route::get('/{service}', 'details');
-    Route::patch('/{service}', 'update');
-    Route::delete('/{service}', 'delete');
+    Route::get('/{id}', 'details');
+    Route::patch('/{id}', 'update');
+    Route::delete('/{id}', 'delete');
   });
+

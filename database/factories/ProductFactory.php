@@ -20,9 +20,9 @@ class ProductFactory extends Factory
         return [
             'name' => fake()->unique()->name(),
             'description' => fake()->text(),
-            'quantity' => 5,
             'code' => Str::random(8),
-            'price' => 'R$ 50,00',
+            'price' => '10.00',
+            'quantity' => 5,
         ];
     }
 }
