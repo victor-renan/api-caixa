@@ -3,8 +3,10 @@
 namespace App\Models;
 
 use App\Enums\PaymentTypes;
+use Auth;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
+use Illuminate\Database\Eloquent\Relations\BelongsTo;
 
 class Transaction extends Model
 {
@@ -20,4 +22,24 @@ class Transaction extends Model
     protected $casts = [
         'payment_type' => PaymentTypes::class
     ];
+
+    public function user(): BelongsTo
+    {
+        return $this->belongsTo(User::class);
+    }
+
+    public function client(): BelongsTo
+    {
+        return $this->belongsTo(Client::class);
+    }
+
+    protected static function boot(): void
+    {
+        parent::boot();
+        static::creating(function ($model) {
+            if (Auth::check()) {
+                $model->user_id = Auth::id();
+            }
+        });
+    }
 }
