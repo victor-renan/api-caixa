@@ -10,4 +10,12 @@ mkdir -p /sessions
 
 chmod 777 /sessions
 
+php artisan migrate --force
+php artisan db:seed --force
+
+php artisan storage:link
+
+php artisan key:generate
+
+
 exec "$@"
