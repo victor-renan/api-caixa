@@ -5,7 +5,6 @@ namespace App\Http\Controllers;
 use App\Http\Requests\TransactionCreateRequest;
 use App\Models\Transaction;
 use Illuminate\Database\Eloquent\Builder;
-use Illuminate\Foundation\Http\FormRequest;
 use Illuminate\Http\JsonResponse;
 use Illuminate\Http\Request;
 
@@ -18,6 +17,8 @@ class TransactionController extends Controller
 
     public function search(Request $request, Builder $builder)
     {
+        $builder->where('user_id', $request->user()->id);
+
         if ($amountMin = $request->query('amount_min')) {
             $builder->where('amount', '>=', $amountMin);
         }

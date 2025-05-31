@@ -5,12 +5,9 @@ namespace App\Http\Controllers;
 use App\Http\Requests\ClientCreateRequest;
 use App\Http\Requests\ClientUpdateRequest;
 use App\Models\Client;
-use App\Models\Product;
-use App\Services\ClientService;
 use Illuminate\Database\Eloquent\Builder;
 use Illuminate\Http\JsonResponse;
 use Illuminate\Http\Request;
-use Exception;
 
 class ClientController extends Controller
 {
