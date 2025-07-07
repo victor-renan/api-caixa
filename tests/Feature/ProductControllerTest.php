@@ -4,7 +4,9 @@ namespace Tests\Feature;
 
 use App\Models\Product;
 use App\Models\User;
+use Illuminate\Http\UploadedFile;
 use Laravel\Sanctum\Sanctum;
+use Storage;
 use Tests\TestCase;
 
 class ProductControllerTest extends TestCase
@@ -81,7 +83,7 @@ class ProductControllerTest extends TestCase
     $response = $this->getJson("/api/products/$product->id");
 
     $response->assertStatus(200);
-    
+
     $response->assertJsonStructure([
       'name',
       'description',
@@ -111,8 +113,11 @@ class ProductControllerTest extends TestCase
       'description' => 'Lorem Ipsum',
       'price' => 'R$ 50,00',
       'code' => '12345678',
-      'quantity' => 1
+      'quantity' => 1,
+      'image' => UploadedFile::fake()->image('test.png'),
     ]);
+
+    Storage::assertCount('products', 1);
 
     $response->assertStatus(200);
 
@@ -133,13 +138,17 @@ class ProductControllerTest extends TestCase
   {
     $product = Product::factory()->create([
       'name' => 'Foo',
+      'image' => UploadedFile::fake()->image('test.png'),
     ]);
 
     $response = $this->patchJson("/api/products/$product->id", [
       'name' => 'Bar',
+      'image' => UploadedFile::fake()->image('test.png')
     ]);
 
     $response->assertStatus(200);
+
+    Storage::assertCount('products', 1);
 
     $response->assertJsonStructure([
       'data' => [

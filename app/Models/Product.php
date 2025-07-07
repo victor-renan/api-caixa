@@ -5,7 +5,7 @@ namespace App\Models;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Relations\MorphMany;
-use Str;
+use Illuminate\Database\Eloquent\Casts\Attribute;
 
 class Product extends Model
 {
@@ -21,8 +21,19 @@ class Product extends Model
     ];
 
     protected $casts = [
-      'quantity' => 'integer'
+        'quantity' => 'integer'
     ];
+
+    protected $appends = [
+        'image_asset'
+    ];
+
+    protected function imageAsset(): Attribute
+    {
+        return Attribute::make(
+            get: fn(mixed $value, array $attributes) => asset($attributes['image_url']) 
+        );
+    }
 
     public function cartItems(): MorphMany
     {

@@ -14,7 +14,7 @@ class ProductCreateRequest extends FormRequest
       'code' => 'required|unique:products',
       'price' => 'required',
       'quantity' => 'nullable|integer',
-      'image_url' => 'nullable',
+      'image' => 'image|max:20480',
     ];
   }
 
@@ -27,6 +27,8 @@ class ProductCreateRequest extends FormRequest
       'price.required' => 'O preço é obrigatório',
       'code.unique' => 'Já existe um produto com este código',
       'quantity.integer' => 'A quantidade precisa ser um inteiro',
+      'image.image' => 'Selecione uma imagem válida',
+      'image.max' => 'A imagem tem limite de 20mb',
     ];
   }
 }
