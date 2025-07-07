@@ -28,13 +28,11 @@ class Product extends Model
         'image_asset'
     ];
 
-    protected function imageAsset(): Attribute
+    public function getImageAssetAttribute(): string
     {
-        return Attribute::make(
-            get: fn(mixed $value, array $attributes) => asset($attributes['image_url']) 
-        );
+        return asset("products/{$this->attributes['image_url']}");
     }
-
+    
     public function cartItems(): MorphMany
     {
         return $this->morphMany(CartItem::class, 'subject');
