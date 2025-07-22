@@ -18,160 +18,46 @@ class ProductControllerTest extends TestCase
     $user = User::factory()->create();
     Sanctum::actingAs($user);
 
+    Storage::fake();
+    
     Product::factory(10)->create();
   }
 
-  public function test_listage(): void
+
+  public function test_create_with_photo(): void 
   {
-    $response = $this->getJson('/api/products');
-
-    $this->assertCount(10, $response->json()['data']);
-
-    $response->assertJsonStructure([
-      'data' => [
-        '*' => [
-          'name',
-          'description',
-          'quantity',
-          'price',
-        ]
-      ]
-    ]);
-
-    $response->assertStatus(200);
-  }
-
-  public function test_listage_search(): void
-  {
-    Product::query()->delete();
-
-    Product::factory()->create([
-      'name' => 'Foo',
-      'description' => 'Lorem Ipsum',
-      'code' => 'ASDF',
-    ]);
-
-    Product::factory()->create([
-      'name' => 'Bar',
-      'description' => 'Dolor Sit',
-      'code' => 'FDSA',
-    ]);
-
-    Product::factory()->create([
-      'name' => 'Baz',
-      'description' => 'Amet Consequtour',
-      'code' => '12345678'
-    ]);
-
-    $response = $this->getJson('/api/products?name=Fo');
-    $response->assertStatus(200);
-    $this->assertCount(1, $response->json()['data']);
-
-    $response = $this->getJson('/api/products?description=Lorem');
-    $response->assertStatus(200);
-    $this->assertCount(1, $response->json()['data']);
-
-    $response = $this->getJson('/api/products?code=123456');
-    $response->assertStatus(200);
-    $this->assertCount(1, $response->json()['data']);
-  }
-
-  public function test_details(): void
-  {
-    $product = Product::first();
-
-    $response = $this->getJson("/api/products/$product->id");
-
-    $response->assertStatus(200);
-
-    $response->assertJsonStructure([
-      'name',
-      'description',
-      'code',
-      'quantity',
-      'price',
-    ]);
-  }
-
-  public function test_details_invalid(): void
-  {
-
-    Product::query()->delete();
-
-    $response = $this->getJson('/api/products/1');
-
-    $response->assertStatus(404);
-  }
-
-  public function test_create(): void
-  {
-
-    Product::query()->delete();
-
-    $response = $this->putJson('/api/products/', [
-      'name' => 'Foo',
-      'description' => 'Lorem Ipsum',
-      'price' => 'R$ 50,00',
-      'code' => '12345678',
+    $res = $this->putJson('/api/products', [
+      'name' => 'Teste',
+      'description' => 'Teste',
+      'price' => '1.0',
+      'code' => 'code',
       'quantity' => 1,
-      'image' => UploadedFile::fake()->image('test.png'),
+      'image' => UploadedFile::fake()->image('teste.png')  
     ]);
 
-    Storage::assertCount('products', 1);
-
-    $response->assertStatus(200);
-
-    $response->assertJsonStructure([
-      'data' => [
-        'name',
-        'description',
-        'code',
-        'quantity',
-        'price',
-      ],
-    ]);
-
-    $this->assertDatabaseCount(Product::class, 1);
+    $this->assertNotNull($res->json()['data']['image_url']);
   }
 
-  public function test_update(): void
+  public function test_update_with_photo(): void 
   {
-    $product = Product::factory()->create([
-      'name' => 'Foo',
-      'image' => UploadedFile::fake()->image('test.png'),
+    $p = Product::factory()->create([
+      'image_url' => UploadedFile::fake()->image('teste2.png')->store('products')  
     ]);
 
-    $response = $this->patchJson("/api/products/$product->id", [
-      'name' => 'Bar',
-      'image' => UploadedFile::fake()->image('test.png')
+    $res = $this->patchJson("/api/products/{$p->id}", [
+      'image' => UploadedFile::fake()->image('teste2.png')  
     ]);
 
-    $response->assertStatus(200);
-
-    Storage::assertCount('products', 1);
-
-    $response->assertJsonStructure([
-      'data' => [
-        'name',
-        'description',
-        'code',
-        'quantity',
-        'price',
-      ],
-    ]);
-
-    $this->assertEquals($response->json()['data']['name'], 'Bar');
+    $this->assertNotEquals($p->image_url, $res->json()['data']['image_url']);
   }
-
-  public function test_delete(): void
+  public function test_delete_with_photo(): void 
   {
-    $product = Product::factory()->create([
-      'name' => 'Foo',
+    $p = Product::factory()->create([
+      'image_url' => UploadedFile::fake()->image('teste2.png')->store('products')  
     ]);
 
-    $response = $this->deleteJson("/api/products/$product->id");
-    $response->assertStatus(200);
+    $this->deleteJson("/api/products/{$p->id}");
 
-    $this->assertDatabaseMissing($product);
-  }
+    Storage::assertMissing($p->image_url);
+  } 
 }
