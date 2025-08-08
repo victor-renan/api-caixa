@@ -45,7 +45,7 @@ class ProductControllerTest extends TestCase
     ]);
 
     $res = $this->patchJson("/api/products/{$p->id}", [
-      'image' => UploadedFile::fake()->image('teste2.png')  
+      'image' => UploadedFile::fake()->image('teste3.png')  
     ]);
 
     $this->assertNotEquals($p->image_url, $res->json()['data']['image_url']);

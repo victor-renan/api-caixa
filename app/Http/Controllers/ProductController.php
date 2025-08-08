@@ -65,7 +65,7 @@ class ProductController extends Controller
         if ($product) {
             Storage::delete($product->image_url);
         }
-        
+
         return parent::delete($request);
     }
 

@@ -6,6 +6,7 @@ use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Relations\MorphMany;
 use Illuminate\Database\Eloquent\Casts\Attribute;
+use Storage;
 
 class Product extends Model
 {
@@ -30,7 +31,7 @@ class Product extends Model
 
     public function getImageAssetAttribute(): string
     {
-        return asset("products/{$this->attributes['image_url']}");
+        return $this->image_url ? Storage::url($this->image_url) : null;
     }
     
     public function cartItems(): MorphMany
