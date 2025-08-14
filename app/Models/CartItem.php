@@ -5,14 +5,13 @@ namespace App\Models;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Relations\BelongsTo;
-use Illuminate\Database\Eloquent\Relations\MorphTo;
 
 class CartItem extends Model
 {
   use HasFactory;
 
   protected $fillable = [
-    'user_id',
+    'cart_id',
     'product_id',
     'quantity',
   ];
@@ -20,5 +19,10 @@ class CartItem extends Model
   public function product(): BelongsTo
   {
     return $this->belongsTo(Product::class);
+  }
+
+  public function cart(): BelongsTo
+  {
+    return $this->belongsTo(Cart::class);
   }
 }

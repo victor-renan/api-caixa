@@ -4,8 +4,8 @@ namespace App\Models;
 
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
+use Illuminate\Database\Eloquent\Relations\HasMany;
 use Illuminate\Database\Eloquent\Relations\MorphMany;
-use Illuminate\Database\Eloquent\Casts\Attribute;
 use Storage;
 
 class Product extends Model
@@ -34,8 +34,8 @@ class Product extends Model
         return $this->image_url ? Storage::url($this->image_url) : null;
     }
     
-    public function cartItems(): MorphMany
+    public function cartItems(): HasMany
     {
-        return $this->morphMany(CartItem::class, 'subject');
+        return $this->hasMany(CartItem::class);
     }
 }

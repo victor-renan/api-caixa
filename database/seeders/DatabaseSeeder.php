@@ -2,8 +2,8 @@
 
 namespace Database\Seeders;
 
+use App\Models\Cart;
 use App\Models\User;
-// use Illuminate\Database\Console\Seeds\WithoutModelEvents;
 use Illuminate\Database\Seeder;
 
 class DatabaseSeeder extends Seeder
@@ -13,11 +13,17 @@ class DatabaseSeeder extends Seeder
      */
     public function run(): void
     {
-        if (!User::where('email', '=', 'test@mail.com')->exists()) {
-            User::factory()->create([
+        $user = User::where('email', '=', 'test@mail.com')->first();
+
+        if (!$user->exists()) {
+            $user = User::factory()->create([
                 'email' => 'test@mail.com',
                 'password' => 'Test',
             ]);
+        }
+
+        if (!Cart::where('user_id', '=', $user->id)) {
+            Cart::create(['user_id' => $user->id]);
         }
     }
 }

@@ -4,6 +4,7 @@ namespace App\Models;
 
 use App\Notifications\ResetPasswordNotification;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
+use Illuminate\Database\Eloquent\Relations\HasOne;
 use Illuminate\Foundation\Auth\User as Authenticatable;
 use Illuminate\Notifications\Notifiable;
 use Laravel\Sanctum\HasApiTokens;
@@ -40,9 +41,13 @@ class User extends Authenticatable
     protected function casts(): array
     {
         return [
-            'transaction_history' => 'array',
             'password' => 'hashed',
         ];
+    }
+
+    protected function cart(): HasOne
+    {
+        return $this->hasOne(Cart::class);
     }
 
     public function sendPasswordResetNotification($token): void
@@ -50,5 +55,14 @@ class User extends Authenticatable
         $this->notify(new ResetPasswordNotification(
             env('FRONT_URL') . '/reset-password?token=' . $token
         ));
+    }
+
+    protected static function boot(): void
+    {
+        parent::boot();
+
+        static::created(function ($model) {
+            Cart::create(['user_id' => $model->id]);
+        });
     }
 }
